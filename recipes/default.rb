@@ -55,11 +55,12 @@ pkgs.each do |name, attrs|
           eval("pkg_action = :nothing unless node[\"platform_version\"] #{operator} \"#{value}\"")
         end
       end
-      if attrs["version"]
-        if pkg_action == :install
+      if pkg_action.eql?("install")
+        if attrs["version"]
           f.run_action(:delete) unless debian_package_version(name, attrs["version"])
+        else
+          f.run_action(:delete) unless debian_package_info(name)["installed"]
         end
-        version attrs["version"]
       end
       %w{source options}.each do |attr|
         send(attr, attrs[attr])  if attrs[attr]
